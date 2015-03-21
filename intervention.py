@@ -6,9 +6,12 @@ import logging
 import sys
 # import time
 
-import Quartz
-
 # from PySide import QtCore
+
+if sys.platform == 'darwin':
+    import darwin as platform
+else:
+    import windows as platform
 
 LOG_FORMAT = '%(relativeCreated)dms %(message)s'
 
@@ -19,40 +22,16 @@ DURATION = 15 * 1000
 SKIP_FILTER = True
 
 
-def hide_cursor():
-    """
-    Hide the mouse cursor.
-    """
-    Quartz.CGAssociateMouseAndMouseCursorPosition(False)
-    Quartz.CGDisplayHideCursor(Quartz.CGMainDisplayID())
-
-
-def show_cursor():
-    """
-    Show the mouse cursor.
-    """
-    Quartz.CGAssociateMouseAndMouseCursorPosition(True)
-    Quartz.CGDisplayShowCursor(Quartz.CGMainDisplayID())
-
-
-def get_idle_time():
-    """
-    Get the number of seconds since last user input.
-    """
-    return Quartz.CGEventSourceSecondsSinceLastEventType(
-        1, Quartz.kCGAnyInputEventType)
-
-
 # def do_nothing():
 #     time.sleep(DURATION / 1000)
 
 
 if __name__ == '__main__':
     # Just skip it if the computer isn't being used
-    if get_idle_time() > 90:
+    if platform.get_idle_time() > 90:
         sys.exit()
 
-    hide_cursor()
+    platform.hide_cursor()
 
     from ui import Application
 
@@ -81,7 +60,7 @@ if __name__ == '__main__':
     # def exit_handler():
     #     logging.info('atexit triggered')
 
-    #     show_cursor()
+    #     platform.show_cursor()
 
     #     # terminate the pool so we don't sit forever waiting on our get()
     #     logging.info('Terminating pool...')
