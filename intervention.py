@@ -58,6 +58,9 @@ if __name__ == '__main__':
 
     application = Application(sys.argv, ignore_close=not SKIP_FILTER)
 
+    with open('./intervention.css') as css:
+        application.setStyleSheet(css.read())
+
     # exec() is required for objc so we must use spawn
     # multiprocessing.set_start_method('spawn')
 

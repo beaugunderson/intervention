@@ -51,23 +51,22 @@ class Status(QtGui.QWidget):
     The banner displayed at the top of the screen.
     """
     def __init__(self, **kwargs):
-        alignment = (QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter)
-
         super(Status, self).__init__(focusPolicy=QtCore.Qt.TabFocus, **kwargs)
 
         self.answer = None
 
-        self.blank_style = ''
         self.highlight_style = 'background-color: green;'
 
-        label_layout = QtGui.QHBoxLayout(spacing=20)
+        label_kwargs = {
+            'alignment': QtCore.Qt.AlignVCenter | QtCore.Qt.AlignHCenter,
+            'font': self.font()
+        }
 
-        self.yes = QtGui.QLabel(text='Yes', alignment=alignment,
-                                font=self.font())
-        self.no = QtGui.QLabel(text='No', alignment=alignment,
-                               font=self.font())
-        self.ok = QtGui.QLabel(text="It's OK", alignment=alignment,
-                               font=self.font())
+        self.yes = QtGui.QLabel(text='Yes', **label_kwargs)
+        self.no = QtGui.QLabel(text='No', **label_kwargs)
+        self.ok = QtGui.QLabel(text="It's OK", **label_kwargs)
+
+        label_layout = QtGui.QHBoxLayout(spacing=20)
 
         label_layout.addWidget(self.yes)
         label_layout.addWidget(self.no)
@@ -76,9 +75,9 @@ class Status(QtGui.QWidget):
         self.setLayout(label_layout)
 
     def refresh(self):
-        self.yes.setStyleSheet(self.blank_style)
-        self.no.setStyleSheet(self.blank_style)
-        self.ok.setStyleSheet(self.blank_style)
+        self.yes.setStyleSheet('')
+        self.no.setStyleSheet('')
+        self.ok.setStyleSheet('')
 
         if self.answer == 'yes':
             self.yes.setStyleSheet(self.highlight_style)
@@ -101,7 +100,7 @@ class Status(QtGui.QWidget):
         self.setStyleSheet('background-color: #ccc;')
 
     def focusOutEvent(self, _):
-        self.setStyleSheet('background-color: #293776;')
+        self.setStyleSheet('')
 
 
 class Inputs(QtGui.QWidget):
@@ -109,26 +108,20 @@ class Inputs(QtGui.QWidget):
     The banner displayed at the top of the screen.
     """
     def __init__(self, **kwargs):
-        super(Inputs, self).__init__(**kwargs)
+        super(Inputs, self).__init__(objectName='inputs', **kwargs)
 
         top_label_layout = QtGui.QHBoxLayout(spacing=20)
         bottom_label_layout = QtGui.QHBoxLayout(spacing=20)
 
-        # XXX: this is close but not pixel perfect yet
-        label_style = """padding-left: 5px;"""
-
         now_label = QtGui.QLabel(parent=self,
-                                 styleSheet=label_style,
                                  text='What am I doing right now?',
                                  font=self.font())
 
         next_label = QtGui.QLabel(parent=self,
-                                  styleSheet=label_style,
                                   text="What's next?",
                                   font=self.font())
 
         feel_label = QtGui.QLabel(parent=self,
-                                  styleSheet=label_style,
                                   text='How do I feel?',
                                   font=self.font())
 
@@ -141,22 +134,9 @@ class Inputs(QtGui.QWidget):
         bottom_label_layout.addWidget(next_label)
         bottom_label_layout.addWidget(feel_label)
 
-        input_style = """background-color: white;
-                         padding: 5px 10px;
-                         color: black;
-                         border: 0;"""
-
-        self.now_input = QtGui.QLineEdit(parent=self,
-                                         styleSheet=input_style,
-                                         font=self.font())
-
-        self.next_input = QtGui.QLineEdit(parent=self,
-                                          styleSheet=input_style,
-                                          font=self.font())
-
-        self.feel_input = QtGui.QLineEdit(parent=self,
-                                          styleSheet=input_style,
-                                          font=self.font())
+        self.now_input = QtGui.QLineEdit(parent=self, font=self.font())
+        self.next_input = QtGui.QLineEdit(parent=self, font=self.font())
+        self.feel_input = QtGui.QLineEdit(parent=self, font=self.font())
 
         self.now_input.setContentsMargins(*ZERO)
         self.next_input.setContentsMargins(*ZERO)
@@ -188,10 +168,7 @@ class Window(QtGui.QWidget):
     The application's full-screen container.
     """
     def __init__(self, **kwargs):
-        style_sheet = """color: white;
-                         background-color: #293776;"""
-
-        super(Window, self).__init__(styleSheet=style_sheet, **kwargs)
+        super(Window, self).__init__(objectName='window', **kwargs)
 
         self.setContentsMargins(50, 75, 50, 50)
 
@@ -202,16 +179,17 @@ class Window(QtGui.QWidget):
         self.status_font = fonts.font('Museo Slab', '500', 82)
         self.title_font = fonts.font('Museo Slab', '500', 96)
 
-        # Fill the window background instead of just the text background
-        self.setAutoFillBackground(True)
+        message = Message(parent=self, font=self.title_font)
+        status = Status(parent=self, font=self.status_font)
+        inputs = Inputs(parent=self, font=self.text_font)
 
         self.layout = QtGui.QVBoxLayout()
 
-        self.add_title()
+        self.layout.addWidget(message)
         self.layout.addSpacing(40)
-        self.add_status()
+        self.layout.addWidget(status)
         self.layout.addSpacing(30)
-        self.add_inputs()
+        self.layout.addWidget(inputs)
         self.layout.addStretch(1)
 
         self.setLayout(self.layout)
@@ -219,21 +197,6 @@ class Window(QtGui.QWidget):
     def keyPressEvent(self, e):
         if e.key() == QtCore.Qt.Key_Return or e.key() == QtCore.Qt.Key_Enter:
             sys.exit()
-
-    def add_status(self):
-        status = Status(parent=self, font=self.status_font)
-
-        self.layout.addWidget(status)
-
-    def add_inputs(self):
-        inputs = Inputs(parent=self, font=self.text_font)
-
-        self.layout.addWidget(inputs)
-
-    def add_title(self):
-        message = Message(parent=self, font=self.title_font)
-
-        self.layout.addWidget(message)
 
     def show(self):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint |
