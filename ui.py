@@ -3,6 +3,8 @@ import time
 
 from PySide import QtCore, QtGui
 
+ZERO = (0, 0, 0, 0)
+
 
 class Application(QtGui.QApplication):
     """
@@ -109,13 +111,11 @@ class Inputs(QtGui.QWidget):
     def __init__(self, **kwargs):
         super(Inputs, self).__init__(**kwargs)
 
-        self.setContentsMargins(0, 0, 0, 0)
-
         top_label_layout = QtGui.QHBoxLayout(spacing=20)
         bottom_label_layout = QtGui.QHBoxLayout(spacing=20)
 
-        # XXX: 0 is too little, 1px is too much
-        label_style = """padding: 0px;"""
+        # XXX: this is close but not pixel perfect yet
+        label_style = """padding-left: 5px;"""
 
         now_label = QtGui.QLabel(parent=self,
                                  styleSheet=label_style,
@@ -124,7 +124,7 @@ class Inputs(QtGui.QWidget):
 
         next_label = QtGui.QLabel(parent=self,
                                   styleSheet=label_style,
-                                  text='What am I going to do next?',
+                                  text="What's next?",
                                   font=self.font())
 
         feel_label = QtGui.QLabel(parent=self,
@@ -132,13 +132,17 @@ class Inputs(QtGui.QWidget):
                                   text='How do I feel?',
                                   font=self.font())
 
+        now_label.setContentsMargins(*ZERO)
+        next_label.setContentsMargins(*ZERO)
+        feel_label.setContentsMargins(*ZERO)
+
         top_label_layout.addWidget(now_label)
 
         bottom_label_layout.addWidget(next_label)
         bottom_label_layout.addWidget(feel_label)
 
         input_style = """background-color: white;
-                         padding: 5px;
+                         padding: 5px 10px;
                          color: black;
                          border: 0;"""
 
@@ -153,6 +157,10 @@ class Inputs(QtGui.QWidget):
         self.feel_input = QtGui.QLineEdit(parent=self,
                                           styleSheet=input_style,
                                           font=self.font())
+
+        self.now_input.setContentsMargins(*ZERO)
+        self.next_input.setContentsMargins(*ZERO)
+        self.feel_input.setContentsMargins(*ZERO)
 
         top_input_layout = QtGui.QHBoxLayout(spacing=20)
         bottom_input_layout = QtGui.QHBoxLayout(spacing=20)
