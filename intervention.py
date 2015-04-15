@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# import atexit
+import atexit
 import logging
 # import multiprocessing
 import sys
@@ -56,11 +56,14 @@ if __name__ == '__main__':
 
     # result = pool.apply_async(target, callback=filter_input_done_cb)
 
-    # @atexit.register
-    # def exit_handler():
-    #     logging.info('atexit triggered')
+    @atexit.register
+    def exit_handler():
+        """
+        Clean up.
+        """
+        logging.info('atexit triggered')
 
-    #     platform.show_cursor()
+        platform.show_cursor()
 
     #     # terminate the pool so we don't sit forever waiting on our get()
     #     logging.info('Terminating pool...')

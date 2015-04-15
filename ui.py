@@ -1,7 +1,10 @@
+import os
 import sys
 import time
 
 from PySide import QtCore, QtGui
+
+import settings
 
 ZERO = (0, 0, 0, 0)
 
@@ -38,7 +41,8 @@ class Message(QtGui.QLabel):
     def __init__(self, **kwargs):
         current_time = time.strftime('%I:%M%p').lstrip('0').lower()
 
-        text = '{}<br>Am I being intentional?'.format(current_time)
+        text = '{}<br>{}'.format(current_time,
+                                 settings.intervention['message'])
 
         super(Message, self).__init__(text=text,
                                       alignment=(QtCore.Qt.AlignVCenter |
@@ -87,6 +91,9 @@ class Status(QtGui.QWidget):
             self.ok.setStyleSheet(self.highlight_style)
 
     def keyPressEvent(self, e):
+        # Call the parent so we can exit on 'enter' or 'return'
+        self.parent().keyPressEvent(e)
+
         if e.key() == QtCore.Qt.Key_Y or e.key() == QtCore.Qt.Key_1:
             self.answer = 'yes'
         elif e.key() == QtCore.Qt.Key_N or e.key() == QtCore.Qt.Key_2:
@@ -97,7 +104,7 @@ class Status(QtGui.QWidget):
         self.refresh()
 
     def focusInEvent(self, _):
-        self.setStyleSheet('background-color: #ccc;')
+        self.setStyleSheet('background-color: #cccccc;')
 
     def focusOutEvent(self, _):
         self.setStyleSheet('')
@@ -105,7 +112,7 @@ class Status(QtGui.QWidget):
 
 class Inputs(QtGui.QWidget):
     """
-    The banner displayed at the top of the screen.
+    The text inputs.
     """
     def __init__(self, **kwargs):
         super(Inputs, self).__init__(objectName='inputs', **kwargs)
@@ -172,6 +179,9 @@ class Window(QtGui.QWidget):
 
         self.setContentsMargins(50, 75, 50, 50)
 
+        self.setStyleSheet('#window {{ background-color: {}; }}'
+                           .format(settings.intervention['background-color']))
+
         fonts = QtGui.QFontDatabase()
 
         # There's no way to specify the proper font style in CSS
@@ -180,23 +190,36 @@ class Window(QtGui.QWidget):
         self.title_font = fonts.font('Museo Slab', '500', 96)
 
         message = Message(parent=self, font=self.title_font)
-        status = Status(parent=self, font=self.status_font)
-        inputs = Inputs(parent=self, font=self.text_font)
+        self.status = Status(parent=self, font=self.status_font)
+        self.inputs = Inputs(parent=self, font=self.text_font)
 
         self.layout = QtGui.QVBoxLayout()
 
         self.layout.addWidget(message)
         self.layout.addSpacing(40)
-        self.layout.addWidget(status)
+        self.layout.addWidget(self.status)
         self.layout.addSpacing(30)
-        self.layout.addWidget(inputs)
+        self.layout.addWidget(self.inputs)
         self.layout.addStretch(1)
 
         self.setLayout(self.layout)
 
     def keyPressEvent(self, e):
-        if e.key() == QtCore.Qt.Key_Return or e.key() == QtCore.Qt.Key_Enter:
-            sys.exit()
+        if e.key() != QtCore.Qt.Key_Return and e.key() != QtCore.Qt.Key_Enter:
+            return
+
+        log_path = os.path.expanduser(settings.intervention['log'])
+
+        now_text = self.inputs.now_input.text()
+        next_text = self.inputs.next_input.text()
+        feel_text = self.inputs.feel_input.text()
+
+        with open(log_path, 'a') as log:
+            log.write('"{}","{}","{}","{}"\n'.format(self.status.answer,
+                                                     now_text, next_text,
+                                                     feel_text))
+
+        sys.exit()
 
     def show(self):
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint |

@@ -1,0 +1,12 @@
+# This file is read from this directory, and from ~/.intervention.ini and
+# ~/.config/intervention.ini.
+
+[intervention]
+# The window's background color
+background-color = #666666
+# Whether to delay exit
+enforce-delay = true
+# The location of the log file
+log = ~/Dropbox/Intervention/intervention.log
+# The message displayed at the top of the window
+message = A message of your choice

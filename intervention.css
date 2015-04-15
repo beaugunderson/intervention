@@ -2,15 +2,11 @@ QLabel {
   color: white;
 }
 
-QLineEdit {
+#inputs QLineEdit {
   background-color: white;
   padding: 5px 10px;
   color: black;
   border: 0;
-}
-
-#window {
-  background-color: #293776;
 }
 
 #inputs QLabel {

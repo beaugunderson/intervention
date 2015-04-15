@@ -1,3 +1,4 @@
 pyobjc-core==3.0.4
 pyobjc==3.0.4
 PySide==1.2.2
+tini==1.0
