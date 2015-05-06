@@ -6,12 +6,14 @@ import logging
 import sys
 # import time
 
+from pkg_resources import resource_filename
+
 # from PySide import QtCore
 
 if sys.platform == 'darwin':
-    import darwin as platform
+    from . import darwin as platform
 else:
-    import windows as platform
+    from . import windows as platform
 
 LOG_FORMAT = '%(relativeCreated)dms %(message)s'
 
@@ -24,20 +26,23 @@ SKIP_FILTER = True
 
 # def do_nothing():
 #     time.sleep(DURATION / 1000)
+#
 
-
-if __name__ == '__main__':
+def main():
+    """
+    Show the intervention screen.
+    """
     # Just skip it if the computer isn't being used
     if platform.get_idle_time() > 90:
         sys.exit()
 
     platform.hide_cursor()
 
-    from ui import Application
+    from .ui import Application
 
     application = Application(sys.argv, ignore_close=not SKIP_FILTER)
 
-    with open('./intervention.css') as css:
+    with open(resource_filename(__name__, 'intervention.css')) as css:
         application.setStyleSheet(css.read())
 
     # exec() is required for objc so we must use spawn
@@ -56,6 +61,7 @@ if __name__ == '__main__':
 
     # result = pool.apply_async(target, callback=filter_input_done_cb)
 
+    # pylint: disable=unused-variable
     @atexit.register
     def exit_handler():
         """
@@ -88,3 +94,7 @@ if __name__ == '__main__':
     # QtCore.QTimer.singleShot(DURATION, duration_reached)
 
     application.run()
+
+
+if __name__ == '__main__':
+    main()

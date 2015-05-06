@@ -2,9 +2,11 @@ import os
 import sys
 import time
 
+import arrow
+
 from PySide import QtCore, QtGui
 
-import settings
+from . import settings
 
 ZERO = (0, 0, 0, 0)
 
@@ -215,9 +217,11 @@ class Window(QtGui.QWidget):
         feel_text = self.inputs.feel_input.text()
 
         with open(log_path, 'a') as log:
-            log.write('"{}","{}","{}","{}"\n'.format(self.status.answer,
-                                                     now_text, next_text,
-                                                     feel_text))
+            log.write('"{}","{}","{}","{}","{}"\n'.format(
+                arrow.now().isoformat(),
+                self.status.answer,
+                now_text, next_text,
+                feel_text))
 
         sys.exit()
 

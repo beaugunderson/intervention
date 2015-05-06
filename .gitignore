@@ -1,1 +1,3 @@
-intervention.ini
+intervention/intervention-dev.ini
+build/
+dist/
