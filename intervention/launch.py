@@ -12,13 +12,21 @@ from pkg_resources import resource_filename
 
 if sys.platform == 'darwin':
     from . import darwin as platform
-else:
+elif sys.platform.startswith('win'):
     from . import windows as platform
+else:
+    from . import unknown as platform
+
+# Just skip it if the computer isn't being used
+if platform.get_idle_time() > 90:
+    sys.exit()
 
 LOG_FORMAT = '%(relativeCreated)dms %(message)s'
 
 logging.basicConfig(format=LOG_FORMAT, level=logging.INFO)
 logging.info('Logging started')
+
+from .ui import Application
 
 DURATION = 15 * 1000
 SKIP_FILTER = True
@@ -32,15 +40,9 @@ def main():
     """
     Show the intervention screen.
     """
-    # Just skip it if the computer isn't being used
-    if platform.get_idle_time() > 90:
-        sys.exit()
+    application = Application(sys.argv, ignore_close=not SKIP_FILTER)
 
     platform.hide_cursor()
-
-    from .ui import Application
-
-    application = Application(sys.argv, ignore_close=not SKIP_FILTER)
 
     with open(resource_filename(__name__, 'intervention.css')) as css:
         application.setStyleSheet(css.read())
